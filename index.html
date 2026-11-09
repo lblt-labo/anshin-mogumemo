@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>あんしんもぐめも</title>
+<meta name="description" content="わが家の「おいしい！」を記録するアプリ">
+<meta name="theme-color" content="#FFF3DC">
+<meta property="og:type" content="website">
+<meta property="og:title" content="あんしんもぐめも">
+<meta property="og:description" content="わが家の「おいしい！」を記録するアプリ">
+<meta property="og:image" content="./ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="あんしんもぐめも">
+<meta name="twitter:description" content="わが家の「おいしい！」を記録するアプリ">
+<meta name="twitter:image" content="./ogp.png">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#FFF8EC;color:#3a3328;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;line-height:1.6}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;min-height:44px;min-width:44px;border:2px solid #8a7a60;background:#fff;border-radius:14px;padding:6px 12px;transition:transform .1s,background .15s}
+button:active{transform:scale(.94)}
+header{background:#FFE9B8;border-bottom:3px solid #E0A94A;padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:20}
+header .t{flex:1;min-width:0}
+header h1{margin:0;font-size:1.25rem;line-height:1.3}
+header p{margin:0;font-size:.78rem}
+.hb{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.65rem;padding:2px 8px;line-height:1.2}
+.hb span{font-size:1.3rem}
+main{max-width:640px;margin:0 auto;padding:12px}
+.card{background:#fff;border:2px solid #E6D3A8;border-radius:18px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 8px;font-size:1.05rem}
+.sub{font-size:.85rem;font-weight:bold;margin:10px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border-radius:999px;border:2px solid #8a7a60;background:#fff;font-size:.95rem}
+.chip[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
+.chip.tg[aria-pressed="true"]{background:#BFE0F7;border-color:#12507f}
+.slots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.slot[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
+input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;border-radius:12px;padding:8px 10px;min-height:44px;background:#fff;max-width:100%}
+.photo{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.photo img{width:88px;height:88px;object-fit:cover;border-radius:12px;border:2px solid #E6D3A8}
+.main{width:100%;margin-top:14px;background:#2F6FB5;color:#fff;border:3px solid #1b4a80;font-weight:bold;font-size:1.1rem;min-height:52px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;font-weight:bold}
+.tabs button[aria-selected="true"]{background:#BFE0F7;border:3px solid #12507f}
+.rec{display:flex;gap:10px;background:#fff;border:2px solid #E6D3A8;border-radius:16px;padding:10px;margin-bottom:10px}
+.rec img{width:84px;height:84px;object-fit:cover;border-radius:12px;flex:none}
+.rec .ph{width:84px;height:84px;border-radius:12px;background:#FFF1D6;display:flex;align-items:center;justify-content:center;font-size:2rem;flex:none;border:2px dashed #cdb98c}
+.rec .b{flex:1;min-width:0}
+.rec .d{font-size:.8rem;color:#5b5140}
+.rec .m{font-weight:bold}
+.rec .g{font-size:.85rem;color:#12507f;word-break:break-all}
+.del{min-height:44px;font-size:.8rem;border-color:#a05a00;margin-top:4px}
+.empty{text-align:center;padding:24px 8px;color:#5b5140}
+.calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calh b{font-size:1.1rem}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{text-align:center;font-size:.75rem;font-weight:bold}
+.cell{position:relative;aspect-ratio:1/1;min-height:44px;padding:0;overflow:hidden;border-radius:10px;border:2px solid #d9c9a3;background:#fff}
+.cell.has{border-color:#7a4a00}
+.cell.today{border:3px double #12507f}
+.cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cell .dn{position:absolute;top:1px;left:2px;font-size:.7rem;background:rgba(255,255,255,.85);border-radius:6px;padding:0 4px;font-weight:bold}
+.cell .ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;padding-top:8px}
+.cell .n{position:absolute;right:2px;bottom:1px;font-size:.65rem;background:#7a4a00;color:#fff;border-radius:8px;padding:0 5px}
+.modal{position:fixed;inset:0;background:rgba(60,45,20,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.sheet{background:#FFF8EC;width:100%;max-width:640px;max-height:90vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sh h2{margin:0;font-size:1.1rem}
+.row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.row input{flex:1;min-width:0}
+.step{display:flex;gap:10px;align-items:flex-start;margin:10px 0;background:#fff;border-radius:14px;padding:10px;border:2px solid #E6D3A8}
+.step .e{font-size:1.8rem}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:#3a3328;color:#fff;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:90;font-weight:bold;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#lock{position:fixed;inset:0;background:#FFF3DC;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+#lock[hidden]{display:none}
+#lock input{font-size:1.6rem;text-align:center;letter-spacing:.5rem;width:11rem}
+#inst{position:fixed;left:10px;right:10px;bottom:10px;background:#fff;border:3px solid #2F6FB5;border-radius:18px;padding:12px;z-index:60;transform:translateY(150%);transition:transform .5s ease;max-width:620px;margin:0 auto}
+#inst.show{transform:none}
+#inst .r{display:flex;gap:8px;margin-top:8px}
+#inst .r button{flex:1}
+.stat{display:inline-block;padding:2px 10px;border-radius:999px;border:2px solid #8a7a60;font-weight:bold;font-size:.85rem;background:#fff}
+</style>
+</head>
+<body>
+<div id="lock" hidden>
+  <div style="font-size:3rem">🔒</div>
+  <h2 style="margin:0">あんしんもぐめも</h2>
+  <p style="margin:0">パスコード（数字4けた）を入れてください</p>
+  <input id="lockIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="パスコード">
+  <p id="lockMsg" style="margin:0;font-weight:bold;min-height:1.5em"></p>
+</div>
+
+<header>
+  <div class="t"><h1>🍚 あんしんもぐめも</h1><p>わが家の「おいしい！」を記録するアプリ</p></div>
+  <button class="hb" id="helpBtn" aria-label="使い方・ヘルプ"><span>❓</span>使い方</button>
+  <button class="hb" id="setBtn" aria-label="設定"><span>⚙️</span>設定</button>
+</header>
+
+<main>
+  <section class="card" aria-label="クイック記録">
+    <h2>📝 きょうの「おいしい！」を記録</h2>
+    <div class="sub">① 食べたもの（いくつでも）</div>
+    <div class="chips" id="menuChips"></div>
+    <div class="sub">② 安心できた条件（いくつでも）</div>
+    <div class="chips" id="tagChips"></div>
+    <div class="sub">③ いつ？</div>
+    <div class="slots" id="slots"></div>
+    <div class="row" style="margin-top:8px"><label for="dateIn">日付</label><input type="date" id="dateIn"></div>
+    <div class="sub">④ 写真（なくてもOK）</div>
+    <div class="photo">
+      <img id="prev" alt="選んだ写真" hidden>
+      <button id="photoBtn">📷 写真を撮る/選ぶ</button>
+      <button id="photoDel" hidden>✖ 写真をやめる</button>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <button class="main" id="saveBtn">✅ 保存する</button>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tabList" aria-selected="true">📚 図鑑・さがす</button>
+    <button role="tab" id="tabCal" aria-selected="false">📅 カレンダー</button>
+  </div>
+
+  <section id="paneList">
+    <div class="card">
+      <label for="q" class="sub" style="margin-top:0;display:block">🔍 メニューや条件でさがす（例：うどん ケチャップ）</label>
+      <input type="text" id="q" placeholder="ことばを入れてね" style="width:100%">
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section id="paneCal" hidden>
+    <div class="card">
+      <div class="calh">
+        <button id="prevM" aria-label="前の月">◀ 前</button><b id="monthT"></b><button id="nextM" aria-label="次の月">次 ▶</button>
+      </div>
+      <div class="grid" id="cal"></div>
+      <p style="font-size:.8rem;margin:8px 0 0">写真か🍽️のマスをタップすると、その日の記録が見られます。</p>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="mDay" hidden><div class="sheet"><div class="sh"><h2 id="dayT"></h2><button data-close aria-label="閉じる">✖ 閉じる</button></div><div id="dayList"></div></div></div>
+
+<div class="modal" id="mHelp" hidden><div class="sheet">
+  <div class="sh"><h2>❓ 使い方</h2><button data-close aria-label="閉じる">✖ 閉じる</button></div>
+  <p>これは「食べられなかった」ではなく、<b>「この条件なら安心して食べられた！」</b>を集めるわが家のアルバムです。</p>
+  <div class="step"><div class="e">🍙</div><div><b>1. えらぶ</b><br>食べたものと、安心できた条件（別添え、青いお皿など）をタップ。</div></div>
+  <div class="step"><div class="e">📷</div><div><b>2. 写真をそえる（なくてもOK）</b><br>撮影も、アルバムからの選択もできます。</div></div>
+  <div class="step"><div class="e">✅</div><div><b>3. 保存する</b><br>ボタンひとつで記録完了。</div></div>
+  <div class="step"><div class="e">🔍</div><div><b>4. 見返す</b><br>「うどん」などで検索すると、うまくいった組み合わせがすぐ見つかります。</div></div>
+  <div class="step"><div class="e">📅</div><div><b>5. カレンダー</b><br>日ごとの写真を一覧。タップでその日の朝・昼・晩・おやつが見られます。</div></div>
+  <div class="step"><div class="e">⚙️</div><div><b>6. 設定</b><br>メニューや条件の追加・変更、パスコードの設定ができます。</div></div>
+  <p style="font-size:.85rem">※ 記録はこの端末の中だけに保存されます。端末を変えたり、ブラウザのデータを消すと見られなくなります。</p>
+</div></div>
+
+<div class="modal" id="mSet" hidden><div class="sheet">
+  <div class="sh"><h2>⚙️ 設定</h2><button data-close aria-label="閉じる">✖ 閉じる</button></div>
+  <div class="card">
+    <h2>🔒 パスコードロック</h2>
+    <p style="margin:0 0 6px">いまの状態：<span class="stat" id="pcStat"></span></p>
+    <div class="row"><input type="password" id="pcIn" inputmode="numeric" maxlength="4" placeholder="数字4けた" aria-label="新しいパスコード"><button id="pcSet">設定する</button></div>
+    <button id="pcOff" hidden>🔓 ロックを解除する</button>
+  </div>
+  <div class="card"><h2>🍙 メニューの編集</h2><div id="menuEd"></div>
+    <div class="row"><input type="text" id="menuNew" placeholder="新しいメニュー"><button id="menuAdd">＋ 追加</button></div></div>
+  <div class="card"><h2>🏷️ 安心条件タグの編集</h2><div id="tagEd"></div>
+    <div class="row"><input type="text" id="tagNew" placeholder="新しい条件（例：ストロー付き）"><button id="tagAdd">＋ 追加</button></div></div>
+</div></div>
+
+<div id="inst" role="dialog" aria-label="ホーム画面に追加">
+  <b>📲 ホーム画面に追加してアプリとして使う</b>
+  <div id="instTxt" style="font-size:.85rem"></div>
+  <div class="r"><button id="instOk" style="background:#2F6FB5;color:#fff;font-weight:bold">追加する</button><button id="instNo">あとで</button></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+var $=function(i){return document.getElementById(i)};
+var mem={};
+function ld(k,d){try{if(k in mem)return mem[k];var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function toast(m){try{var t=$('toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('show')},2200)}catch(e){}}
+function pad(n){return (n<10?'0':'')+n}
+function ds(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+var DM=['白ご飯','うどん','フライドポテト','パン','からあげ','納豆','カレー'];
+var DT=['ケチャップ別添え','青いお皿','細かく刻む','盛る位置離す','温かい状態','単体','一口だけ'];
+var SL=[['朝','🌅'],['昼','☀️'],['おやつ','🍪'],['晩','🌙']];
+var menus=ld('menus',null)||DM.slice(),tags=ld('tags',null)||DT.slice(),recs=ld('recs',[]),pass=ld('pass','');
+if(!Array.isArray(menus))menus=DM.slice();if(!Array.isArray(tags))tags=DT.slice();if(!Array.isArray(recs))recs=[];if(typeof pass!=='string')pass='';
+var selM=[],selT=[],slot=(function(){var H=new Date().getHours();return H<10?'朝':H<15?'昼':H<18?'おやつ':'晩'})(),photo='';
+var now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
+
+function chips(box,list,sel,cls){
+  if(!box)return;box.innerHTML='';
+  if(!list.length){box.appendChild(h('span','',"（設定から追加できます）"))}
+  list.forEach(function(n){
+    var on=sel.indexOf(n)>=0;
+    var b=h('button','chip '+cls,(on?'✓ ':'')+(cls==='tg'?'＃':'')+n);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.onclick=function(){var i=sel.indexOf(n);if(i>=0)sel.splice(i,1);else sel.push(n);chips(box,list,sel,cls)};
+    box.appendChild(b);
+  });
+}
+function drawQuick(){chips($('menuChips'),menus,selM,'mn');chips($('tagChips'),tags,selT,'tg');drawSlots()}
+function drawSlots(){
+  var b=$('slots');if(!b)return;b.innerHTML='';
+  SL.forEach(function(s){
+    var on=slot===s[0];var x=h('button','slot',(on?'✓ ':'')+s[1]+s[0]);
+    x.setAttribute('aria-pressed',on?'true':'false');
+    x.onclick=function(){slot=s[0];drawSlots()};b.appendChild(x);
+  });
+}
+function resize(file,cb){
+  try{
+    var r=new FileReader();
+    r.onerror=function(){cb('')};
+    r.onload=function(){
+      try{
+        var im=new Image();
+        im.onerror=function(){cb('')};
+        im.onload=function(){
+          try{
+            var M=500,w=im.width,hh=im.height,k=Math.min(1,M/Math.max(w,hh));
+            var c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(hh*k));
+            c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+            cb(c.toDataURL('image/jpeg',0.7));
+          }catch(e){cb('')}
+        };
+        im.src=r.result;
+      }catch(e){cb('')}
+    };
+    r.readAsDataURL(file);
+  }catch(e){cb('')}
+}
+function setPhoto(p){
+  photo=p||'';var im=$('prev');
+  if(im){if(photo){im.src=photo;im.hidden=false}else{im.removeAttribute('src');im.hidden=true}}
+  if($('photoDel'))$('photoDel').hidden=!photo;
+  if($('photoBtn'))$('photoBtn').textContent=photo?'📷 撮りなおす/選びなおす':'📷 写真を撮る/選ぶ';
+}
+if($('photoBtn'))$('photoBtn').onclick=function(){var f=$('file');if(f)f.click()};
+if($('photoDel'))$('photoDel').onclick=function(){setPhoto('');toast('写真をはずしました')};
+if($('file'))$('file').onchange=function(e){
+  var f=e.target.files&&e.target.files[0];if(!f)return;
+  toast('写真を準備中…');
+  resize(f,function(d){if(d){setPhoto(d);toast('写真をセットしました📷')}else toast('写真を読み込めませんでした');$('file').value=''});
+};
+if($('dateIn'))$('dateIn').value=ds(new Date());
+
+if($('saveBtn'))$('saveBtn').onclick=function(){
+  try{
+    if(!selM.length){toast('食べたものを1つ以上えらんでね');return}
+    var dv=($('dateIn')&&$('dateIn').value)||ds(new Date());
+    var r={id:Date.now()+'-'+Math.floor(Math.random()*1000),ts:Date.now(),date:dv,slot:slot,menus:selM.slice(),tags:selT.slice(),photo:photo};
+    recs.unshift(r);
+    if(!sv('recs',recs)){
+      if(r.photo){r.photo='';if(sv('recs',recs))toast('写真は容量がいっぱいで、記録だけ保存しました')}
+      else toast('保存できませんでした（この画面を開いている間は見られます）');
+    }else toast('保存しました！🎉 おいしい！');
+    selM=[];selT=[];setPhoto('');drawQuick();drawList();drawCal();
+    if(window.scrollTo)window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){toast('うまく保存できませんでした')}
+};
+
+function card(r,withDel){
+  var d=h('div','rec');
+  if(r.photo){var im=h('img');im.src=r.photo;im.alt='食事の写真';d.appendChild(im)}else d.appendChild(h('div','ph','🍽️'));
+  var b=h('div','b');
+  var sl=SL.filter(function(s){return s[0]===r.slot})[0];
+  b.appendChild(h('div','d',(r.date||'').replace(/-/g,'/')+'　'+(sl?sl[1]+sl[0]:'')));
+  b.appendChild(h('div','m',(r.menus||[]).join(' ＋ ')));
+  if(r.tags&&r.tags.length)b.appendChild(h('div','g',r.tags.map(function(t){return '＃'+t}).join(' ')));
+  if(withDel){var x=h('button','del','🗑️ けす');x.onclick=function(){
+    if(!confirm('この記録を消しますか？'))return;
+    recs=recs.filter(function(y){return y.id!==r.id});sv('recs',recs);toast('消しました');drawList();drawCal();
+    if(openDay)showDay(openDay);
+  };b.appendChild(x)}
+  d.appendChild(b);return d;
+}
+function drawList(){
+  var box=$('list');if(!box)return;box.innerHTML='';
+  var q=(($('q')&&$('q').value)||'').replace(/[＃#]/g,'').trim().toLowerCase();
+  var ws=q?q.split(/[\s　]+/):[];
+  var out=recs.filter(function(r){
+    var s=((r.menus||[]).concat(r.tags||[])).join(' ').toLowerCase();
+    return ws.every(function(w){return s.indexOf(w)>=0});
+  }).sort(function(a,b){return (b.date).localeCompare(a.date)||b.ts-a.ts});
+  if(!out.length){box.appendChild(h('div','empty',recs.length?'🔎 見つかりませんでした。ほかのことばで試してみてね。':'🌱 まだ記録がありません。上のカードから最初の「おいしい！」を記録してみましょう。'));return}
+  if(q)box.appendChild(h('p','',out.length+'件、安心して食べられた記録があります'));
+  out.forEach(function(r){box.appendChild(card(r,true))});
+}
+if($('q'))$('q').oninput=drawList;
+
+function drawCal(){
+  var g=$('cal');if(!g)return;g.innerHTML='';
+  $('monthT').textContent=cy+'年'+(cm+1)+'月';
+  ['日','月','火','水','木','金','土'].forEach(function(w){g.appendChild(h('div','wd',w))});
+  var first=new Date(cy,cm,1).getDay(),days=new Date(cy,cm+1,0).getDate(),td=ds(new Date());
+  for(var i=0;i<first;i++)g.appendChild(h('div'));
+  for(var d=1;d<=days;d++)(function(d){
+    var key=cy+'-'+pad(cm+1)+'-'+pad(d);
+    var list=recs.filter(function(r){return r.date===key}).sort(function(a,b){return b.ts-a.ts});
+    var b=h('button','cell'+(list.length?' has':'')+(key===td?' today':''));
+    b.setAttribute('aria-label',(cm+1)+'月'+d+'日'+(list.length?'、'+list.length+'件の記録':'、記録なし')+(key===td?'、今日':''));
+    if(list.length){
+      var last=list[0];
+      if(last.photo){var im=h('img');im.src=last.photo;im.alt='';b.appendChild(im)}else b.appendChild(h('span','ic','🍽️'));
+      if(list.length>1)b.appendChild(h('span','n','×'+list.length));
+    }
+    b.appendChild(h('span','dn',String(d)));
+    b.onclick=function(){showDay(key)};
+    g.appendChild(b);
+  })(d);
+}
+if($('prevM'))$('prevM').onclick=function(){cm--;if(cm<0){cm=11;cy--}drawCal()};
+if($('nextM'))$('nextM').onclick=function(){cm++;if(cm>11){cm=0;cy++}drawCal()};
+
+var openDay=null;
+function showDay(key){
+  openDay=key;var p=key.split('-');
+  $('dayT').textContent='📅 '+Number(p[1])+'月'+Number(p[2])+'日の記録';
+  var box=$('dayList');box.innerHTML='';
+  var order={'朝':0,'昼':1,'おやつ':2,'晩':3};
+  var list=recs.filter(function(r){return r.date===key}).sort(function(a,b){return (order[a.slot]-order[b.slot])||a.ts-b.ts});
+  if(!list.length)box.appendChild(h('div','empty','この日の記録はまだありません'));
+  list.forEach(function(r){box.appendChild(card(r,true))});
+  openM('mDay');
+}
+
+function openM(id){var m=$(id);if(m)m.hidden=false}
+function closeM(id){var m=$(id);if(m)m.hidden=true;if(id==='mDay')openDay=null}
+Array.prototype.forEach.call(document.querySelectorAll('.modal'),function(m){
+  m.addEventListener('click',function(e){if(e.target===m)closeM(m.id)});
+  Array.prototype.forEach.call(m.querySelectorAll('[data-close]'),function(b){b.onclick=function(){closeM(m.id)}});
+});
+if($('helpBtn'))$('helpBtn').onclick=function(){openM('mHelp')};
+if($('setBtn'))$('setBtn').onclick=function(){drawSet();openM('mSet')};
+
+function tab(w){
+  var l=w==='list';
+  $('paneList').hidden=!l;$('paneCal').hidden=l;
+  $('tabList').setAttribute('aria-selected',l?'true':'false');
+  $('tabCal').setAttribute('aria-selected',l?'false':'true');
+  if(!l)drawCal();
+}
+if($('tabList'))$('tabList').onclick=function(){tab('list')};
+if($('tabCal'))$('tabCal').onclick=function(){tab('cal')};
+
+function editor(box,list,key){
+  box.innerHTML='';
+  list.forEach(function(n,i){
+    var r=h('div','row');var inp=h('input');inp.type='text';inp.value=n;inp.setAttribute('aria-label','名前');
+    inp.onchange=function(){var v=inp.value.trim();if(!v){inp.value=list[i];return}list[i]=v;sv(key,list);drawQuick();toast('変更しました')};
+    var d=h('button','','🗑️');d.setAttribute('aria-label',n+'を削除');
+    d.onclick=function(){if(!confirm('「'+n+'」を削除しますか？（過去の記録は残ります）'))return;list.splice(i,1);sv(key,list);
+      selM=selM.filter(function(x){return menus.indexOf(x)>=0});selT=selT.filter(function(x){return tags.indexOf(x)>=0});
+      editor(box,list,key);drawQuick();toast('削除しました')};
+    r.appendChild(inp);r.appendChild(d);box.appendChild(r);
+  });
+}
+function add(inp,list,key){
+  var v=(inp.value||'').replace(/[＃#]/g,'').trim();if(!v){toast('ことばを入れてね');return}
+  if(list.indexOf(v)>=0){toast('もう入っています');return}
+  list.push(v);sv(key,list);inp.value='';drawSet();drawQuick();toast('追加しました ✨');
+}
+if($('menuAdd'))$('menuAdd').onclick=function(){add($('menuNew'),menus,'menus')};
+if($('tagAdd'))$('tagAdd').onclick=function(){add($('tagNew'),tags,'tags')};
+function drawSet(){
+  editor($('menuEd'),menus,'menus');editor($('tagEd'),tags,'tags');
+  var on=!!pass;
+  $('pcStat').textContent=on?'🔒 オン':'🔓 オフ';
+  $('pcOff').hidden=!on;$('pcSet').textContent=on?'変更する':'設定する';
+}
+if($('pcSet'))$('pcSet').onclick=function(){
+  var v=$('pcIn').value;
+  if(!/^\d{4}$/.test(v)){toast('数字4けたで入れてね');return}
+  pass=v;sv('pass',pass);$('pcIn').value='';drawSet();toast('パスコードを設定しました🔒');
+};
+if($('pcOff'))$('pcOff').onclick=function(){
+  if(!confirm('パスコードロックを解除しますか？'))return;
+  pass='';sv('pass','');drawSet();toast('ロックを解除しました🔓');
+};
+function lockCheck(){
+  var L=$('lock');if(!L)return;
+  if(pass){L.hidden=false;var i=$('lockIn');if(i){i.value='';try{i.focus()}catch(e){}}}else L.hidden=true;
+}
+if($('lockIn'))$('lockIn').oninput=function(){
+  var v=this.value;
+  if(v.length===4){
+    if(v===pass){$('lock').hidden=true;$('lockMsg').textContent='';toast('おかえりなさい🍚')}
+    else{$('lockMsg').textContent='❌ パスコードがちがいます';this.value=''}
+  }
+};
+
+var dp=null;
+function instHide(){var b=$('inst');if(b)b.classList.remove('show');sv('instDis',1)}
+function instShow(t,btn){
+  if(ld('instDis',0))return;
+  var b=$('inst');if(!b)return;$('instTxt').textContent=t;$('instOk').hidden=!btn;
+  setTimeout(function(){b.classList.add('show')},1200);
+}
+window.addEventListener('beforeinstallprompt',function(e){
+  try{e.preventDefault();dp=e;instShow('ホームから1タップで開けて、写真もすぐ撮れます。',true)}catch(x){}
+});
+if($('instOk'))$('instOk').onclick=function(){
+  try{if(dp){dp.prompt();dp=null}}catch(e){}
+  instHide();
+};
+if($('instNo'))$('instNo').onclick=instHide;
+try{
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent),st=window.navigator.standalone||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+  if(ios&&!st)instShow('Safariの共有ボタン □↑ から「ホーム画面に追加」を選んでください。',false);
+}catch(e){}
+window.addEventListener('appinstalled',function(){instHide()});
+
+try{if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){})}}catch(e){}
+
+drawQuick();drawList();drawCal();lockCheck();
+});
+</script>
+<footer style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 3rem; padding: 1rem 0.5rem; line-height: 1.5;">
+  <p style="margin-bottom: 0.5rem;">【ご利用について】</p>
+  <p style="margin-bottom: 0.5rem;">本アプリの利用に伴うトラブルやデータ損失等について、開発者は一切の責任を負いかねます。</p>
+  <p style="margin-bottom: 0.5rem;">ご意見・不具合のご報告は X（<a href="https://x.com/lblt_labo" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">@lblt_labo</a>）までお願いいたします。</p>
+  <p style="margin-top: 0.5rem;"><a href="https://ofuse.me/lbltlabo/letter" target="_blank" rel="noopener noreferrer" style="color: #666; text-decoration: underline;">☕️ 開発者を応援する / メッセージを送る</a></p>
+</footer>
+</body>
+</html>
