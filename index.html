@@ -38,6 +38,9 @@ main{max-width:640px;margin:0 auto;padding:12px}
 .chip[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
 .chip.tg[aria-pressed="true"]{background:#BFE0F7;border-color:#12507f}
 .chip.add{border:2px dashed #12507f;background:#EAF5FD;font-weight:bold;color:#12507f}
+.chip{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.chip.xmode{border:2px dashed #a05a00;background:#FFF1E0;color:#7a3a00;font-weight:bold}
+.hint{font-size:.75rem;color:#5b5140;margin:6px 0 0}
 .slots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .slot[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
 input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;border-radius:12px;padding:8px 10px;min-height:44px;background:#fff;max-width:100%}
@@ -109,8 +112,10 @@ input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;
     <h2>📝 きょうの「おいしい！」を記録</h2>
     <div class="sub">① 食べたもの（いくつでも）</div>
     <div class="chips" id="menuChips"></div>
+    <p class="hint">💡 ボタンを長押し、または「🗑️ 整理する」で削除できます</p>
     <div class="sub">② 安心できた条件（いくつでも）</div>
     <div class="chips" id="tagChips"></div>
+    <p class="hint">💡 ボタンを長押し、または「🗑️ 整理する」で削除できます</p>
     <div class="sub">③ いつ？</div>
     <div class="slots" id="slots"></div>
     <div class="row" style="margin-top:8px"><label for="dateIn">日付</label><input type="date" id="dateIn"></div>
@@ -153,7 +158,7 @@ input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;
 <div class="modal" id="mHelp" hidden><div class="sheet">
   <div class="sh"><h2>❓ 使い方</h2><button data-close aria-label="閉じる">✖ 閉じる</button></div>
   <p>これは「食べられなかった」ではなく、<b>「この条件なら安心して食べられた！」</b>を集めるわが家のアルバムです。</p>
-  <div class="step"><div class="e">🍙</div><div><b>1. えらぶ</b><br>食べたものと、安心できた条件（別添え、青いお皿など）をタップ。</div></div>
+  <div class="step"><div class="e">🍙</div><div><b>1. えらぶ</b><br>食べたものと、安心できた条件（別添え、青いお皿など）をタップ。足りないものは「＋」で追加、いらないものは長押しか「🗑️ 整理する」で削除できます。</div></div>
   <div class="step"><div class="e">📷</div><div><b>2. 写真をそえる（なくてもOK）</b><br>撮影も、アルバムからの選択もできます。</div></div>
   <div class="step"><div class="e">✅</div><div><b>3. 保存する</b><br>ボタンひとつで記録完了。</div></div>
   <div class="step"><div class="e">🔍</div><div><b>4. 見返す</b><br>「うどん」などで検索すると、うまくいった組み合わせがすぐ見つかります。</div></div>
@@ -210,16 +215,52 @@ var now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
 function chips(box,list,sel,cls){
   if(!box)return;box.innerHTML='';
   if(!list.length){box.appendChild(h('span','',"（右のボタンから追加できます）"))}
+  if(!list.length)editing[cls]=false;
+  var ed=!!editing[cls];
   list.forEach(function(n){
     var on=sel.indexOf(n)>=0;
-    var b=h('button','chip '+cls,(on?'✓ ':'')+(cls==='tg'?'＃':'')+n);
-    b.setAttribute('aria-pressed',on?'true':'false');
-    b.onclick=function(){var i=sel.indexOf(n);if(i>=0)sel.splice(i,1);else sel.push(n);chips(box,list,sel,cls)};
+    var nm=(cls==='tg'?'＃':'')+n;
+    var b;
+    if(ed){
+      b=h('button','chip '+cls+' xmode','✕ '+nm);
+      b.setAttribute('aria-label',n+'を削除する');
+      b.onclick=function(){confirmDel(n,cls)};
+    }else{
+      b=h('button','chip '+cls,(on?'✓ ':'')+nm);
+      b.setAttribute('aria-pressed',on?'true':'false');
+      var tm=null,fired=false,sx=0,sy=0;
+      var stop=function(){if(tm){clearTimeout(tm);tm=null}};
+      b.addEventListener('pointerdown',function(e){
+        fired=false;stop();sx=e.clientX;sy=e.clientY;
+        tm=setTimeout(function(){tm=null;fired=true;try{if(navigator.vibrate)navigator.vibrate(30)}catch(x){}confirmDel(n,cls)},650);
+      });
+      b.addEventListener('pointermove',function(e){if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10)stop()});
+      ['pointerup','pointerleave','pointercancel'].forEach(function(t){b.addEventListener(t,stop)});
+      b.addEventListener('contextmenu',function(e){e.preventDefault()});
+      b.onclick=function(){if(fired){fired=false;return}var i=sel.indexOf(n);if(i>=0)sel.splice(i,1);else sel.push(n);chips(box,list,sel,cls)};
+    }
     box.appendChild(b);
   });
   var ab=h('button','chip add',cls==='tg'?'＋ 条件を追加':'＋ 食材を追加');
   ab.onclick=function(){openAdd(cls)};
   box.appendChild(ab);
+  if(list.length){
+    var eb=h('button','chip add',ed?'✓ 整理をおわる':'🗑️ 整理する');
+    eb.onclick=function(){editing[cls]=!editing[cls];chips(box,list,sel,cls)};
+    box.appendChild(eb);
+  }
+}
+var editing={mn:false,tg:false};
+function confirmDel(n,cls){
+  try{
+    var tg=cls==='tg',list=tg?tags:menus;
+    if(!confirm('「'+n+'」\nこの項目を削除しますか？（過去の記録は残ります）'))return;
+    var i=list.indexOf(n);if(i>=0)list.splice(i,1);
+    if(tg)selT=selT.filter(function(x){return x!==n});else selM=selM.filter(function(x){return x!==n});
+    var ok=sv(tg?'tags':'menus',list);
+    drawQuick();
+    toast(ok?'「'+n+'」を削除しました':'削除しました（この画面を開いている間だけ反映されます）');
+  }catch(e){toast('うまく削除できませんでした')}
 }
 var addKind='mn';
 function openAdd(kind){
