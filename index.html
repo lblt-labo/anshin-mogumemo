@@ -37,6 +37,7 @@ main{max-width:640px;margin:0 auto;padding:12px}
 .chip{border-radius:999px;border:2px solid #8a7a60;background:#fff;font-size:.95rem}
 .chip[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
 .chip.tg[aria-pressed="true"]{background:#BFE0F7;border-color:#12507f}
+.chip.add{border:2px dashed #12507f;background:#EAF5FD;font-weight:bold;color:#12507f}
 .slots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .slot[aria-pressed="true"]{background:#FFD98A;border:3px solid #7a4a00;font-weight:bold}
 input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;border-radius:12px;padding:8px 10px;min-height:44px;background:#fff;max-width:100%}
@@ -161,6 +162,12 @@ input[type=text],input[type=password],input[type=date]{border:2px solid #8a7a60;
   <p style="font-size:.85rem">※ 記録はこの端末の中だけに保存されます。端末を変えたり、ブラウザのデータを消すと見られなくなります。</p>
 </div></div>
 
+<div class="modal" id="mAdd" hidden><div class="sheet">
+  <div class="sh"><h2 id="addT"></h2><button data-close aria-label="閉じる">✖ 閉じる</button></div>
+  <div class="row"><input type="text" id="addIn" maxlength="30" aria-label="追加する名前"><button id="addOk" style="background:#2F6FB5;color:#fff;font-weight:bold;border-color:#1b4a80">＋ 追加</button></div>
+  <p style="font-size:.8rem;margin:4px 0 0">追加すると、すぐに一覧に入り、次回からもずっと表示されます。</p>
+</div></div>
+
 <div class="modal" id="mSet" hidden><div class="sheet">
   <div class="sh"><h2>⚙️ 設定</h2><button data-close aria-label="閉じる">✖ 閉じる</button></div>
   <div class="card">
@@ -202,7 +209,7 @@ var now=new Date(),cy=now.getFullYear(),cm=now.getMonth();
 
 function chips(box,list,sel,cls){
   if(!box)return;box.innerHTML='';
-  if(!list.length){box.appendChild(h('span','',"（設定から追加できます）"))}
+  if(!list.length){box.appendChild(h('span','',"（右のボタンから追加できます）"))}
   list.forEach(function(n){
     var on=sel.indexOf(n)>=0;
     var b=h('button','chip '+cls,(on?'✓ ':'')+(cls==='tg'?'＃':'')+n);
@@ -210,7 +217,35 @@ function chips(box,list,sel,cls){
     b.onclick=function(){var i=sel.indexOf(n);if(i>=0)sel.splice(i,1);else sel.push(n);chips(box,list,sel,cls)};
     box.appendChild(b);
   });
+  var ab=h('button','chip add',cls==='tg'?'＋ 条件を追加':'＋ 食材を追加');
+  ab.onclick=function(){openAdd(cls)};
+  box.appendChild(ab);
 }
+var addKind='mn';
+function openAdd(kind){
+  addKind=kind;
+  $('addT').textContent=kind==='tg'?'🏷️ 安心できた条件を追加':'🍙 食べたものを追加';
+  $('addIn').placeholder=kind==='tg'?'例：ストロー付き':'例：オムライス';
+  $('addIn').value='';openM('mAdd');
+  setTimeout(function(){try{$('addIn').focus()}catch(e){}},100);
+}
+function doAdd(){
+  try{
+    var v=($('addIn').value||'').replace(/[＃#]/g,'').trim();
+    if(!v){toast('ことばを入れてね');return}
+    var tg=addKind==='tg',list=tg?tags:menus,sel=tg?selT:selM;
+    if(list.indexOf(v)>=0){
+      if(sel.indexOf(v)<0)sel.push(v);
+      drawQuick();closeM('mAdd');toast('もう入っているので、えらびました ✓');return;
+    }
+    list.push(v);sel.push(v);
+    var ok=sv(tg?'tags':'menus',list);
+    drawQuick();closeM('mAdd');
+    toast(ok?'「'+v+'」を追加しました ✨':'追加しました（この画面を開いている間だけ表示されます）');
+  }catch(e){toast('うまく追加できませんでした')}
+}
+if($('addOk'))$('addOk').onclick=doAdd;
+if($('addIn'))$('addIn').onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();doAdd()}};
 function drawQuick(){chips($('menuChips'),menus,selM,'mn');chips($('tagChips'),tags,selT,'tg');drawSlots()}
 function drawSlots(){
   var b=$('slots');if(!b)return;b.innerHTML='';
